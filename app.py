@@ -3,7 +3,6 @@ import cv2
 import cv2 as cv
 import math
 import time
-import time
 import streamlit as st
 from PIL import Image
 import pickle
@@ -135,7 +134,7 @@ if tab == "Login":
     if "login" not in st.session_state:
         st.session_state["login"] = False
 
-
+    # adding user data to our record
     def add_userdata(username, password):
         record = {
             'username': username,
@@ -154,7 +153,7 @@ if tab == "Login":
         else:
             return False
 
-
+    #if user name is not taken by other person we'll give warning
     def user_name_available(username):
         if (db.count_documents({'username': username}, limit=1)) < 1:
             return True
@@ -162,7 +161,7 @@ if tab == "Login":
             return False
 
 
-    def fun():
+    def logged_in():
         st.title("You're good to go!")
 
         def load_lottieurl(url: str):
@@ -191,7 +190,7 @@ if tab == "Login":
         choice = st.sidebar.selectbox("Menu", menu)
 
         if st.session_state['login']:
-            fun()
+            logged_in()
         elif choice == "Login":
             st.subheader("Login Section")
 
@@ -204,7 +203,7 @@ if tab == "Login":
                     st.session_state['user_name'] = username
                     st.success("Logged In as {}".format(username))
 
-                    fun()
+                    logged_in()
 
                 else:
                     st.warning("Incorrect Username/Password")
@@ -233,6 +232,7 @@ if tab == "Login":
 
 # Home page
 if tab == "Home":
+    # defining function for animation
     def load_lottieurl(url: str):
         r = requests.get(url)
         if r.status_code != 200:
@@ -257,6 +257,7 @@ if tab == "Home":
 
 # Age and Gender detection page
 if tab == "Guess Me":
+    # it will recommend books based on age and gender
     def recommend_age_gender_based(user_age, gender):
         final_df = pd.DataFrame()
         if user_age <= 14:
@@ -372,7 +373,7 @@ if tab == "Guess Me":
     with col1:
         st.title("Let's have some fun😄")
         st.write(
-            """##### Please look straight into the camera with proper lighting for better accuracy and as we detect you we will recommend you books.""")
+            """##### Please look into the camera with proper light on the face so that we can detect your age and gender with better accuracy.""")
 
         FRAME_WINDOW = st.image([])
         cam = cv2.VideoCapture(0)
@@ -382,8 +383,8 @@ if tab == "Guess Me":
         age1 = 0
         gender1 = "M"
 
-
-        def fun(flag):
+        #this will detect the users age and gender
+        def detect_age_gender(flag):
             global age
             global gender
             predicted_age = 0
@@ -409,7 +410,7 @@ if tab == "Guess Me":
         if st.button("start"):
             flag = True
 
-            dict = fun(flag)
+            dict = detect_age_gender(flag)
             data = {'Gender': [dict["gender"]],
                     'Age': [dict["age"]]}
             df = pd.DataFrame(data)
@@ -423,7 +424,7 @@ if tab == "Guess Me":
         st.session_state.result_state = False
     if result_btn or st.session_state.result_state:
         st.session_state.result_state = True
-        option = ["Yup!😁", "No😞"]
+        option = ["Yup!😁", "No"]
         slct = st.selectbox("Did we guess it right?", option)
         if "select_state" not in st.session_state:
             st.session_state.select_state = False
@@ -438,11 +439,10 @@ if tab == "Guess Me":
             recommend_age_gender_based(st.session_state.age2, st.session_state.gender2)
             st.write("yahoo🥳")
             st.write(st.session_state.age2, st.session_state.gender2)
-        elif slct == "No😞" or st.session_state.no_state:
-            st.write("sorry😞")
+        elif slct == "No" or st.session_state.no_state:
             gender_option = ["Male", "Female"]
-            st.session_state.gender2 = st.selectbox("Please enter your gender", gender_option)
-            st.session_state.age2 = st.number_input("Please enter your age below:", min_value=1, value=24)
+            st.session_state.gender2 = st.selectbox("Please enter your gender:", gender_option)
+            st.session_state.age2 = st.number_input("Please enter your age:", min_value=1, value=24)
             recommend_age_gender_based(st.session_state.age2, st.session_state.gender2)
 
     with col2:
@@ -502,10 +502,10 @@ if tab == "Books for You":
                 x = (numerator / denominator)
         return x
 
-
+    # this function will recommend books based on what's in your cart and browse history, it will first estimate the ratings
     def hybrid_recommend_history_based(cart, rated, browse_hist):
         if not cart or not browse_hist:
-            st.write("We don't have enough history of your activity to recommend you books.")
+            st.write(" ##### We don't have enough history of your activity to recommend you books.")
 
             def load_lottieurl(url: str):
                 r = requests.get(url)
@@ -700,13 +700,13 @@ if tab == "About us":
     with cols2:
         st.write(""" ##### Bonjour!! """)
         st.write(
-            """ ##### I am Bharti Patel, pursuing B. Tech. from IIT (ISM) Dhanbad.""")
+            """ ##### I am Bharti Patel, a 2nd year BTech student at IIT (ISM) Dhanbad.""")
         st.write(
             """ ##### I've created this app with Python as my langugage, Machine Learning for model, Pycharm as IDE, Streamlit as framework, MongoDB as database and Heroku for Deployment.""")
         st.write(
-            """ ##### I've used different kind of algorithms like K-nearest neighbor algorithm for collaborative based filtering, vector based model for content based filtering, along with them I have also used hybrid based recommendor system. For sorting I have used quicksort algorithm, for scoring purpose I have used different formulas and ranked the items based on their scores.""")
+            """ ##### I've used the K-Nearest Neighbor algorithm for collaborative-based filtering and the Vector Space Model for content-based filtering. I have also used hybrid filtering to track users' behavior and recommend them accordingly. For sorting, I have used different algorithms, like the quicksort and Timsort algorithms. Similarly, I have used algorithms like membership operators and linear search for searching. For scoring and ranking, I have estimated the scores of different items and ranked them.""")
         st.write(
-            """ ##### This web app is built under the mentorship program offered by Microsoft as Microspft Intern Engage 2022. I was mentored by Ekta Mehla ma'am throughout this program .""")
+            """ ##### This web app is built under the mentorship program offered by Microsoft, Microsoft Engage 2022. I was mentored by Ekta Mehla ma'am throughout this program .""")
     with cols3:
         st_lottie(lottie_about, loop=True, quality="low", height=550)
 
@@ -847,9 +847,9 @@ if tab == "Search History":
 # Book Shelf page
 if tab == "Book Shelf":
     st.header("Enjoy your favorite Genre of Books🤩")
-    st.sidebar.header(""" **Other Options** """)
+    st.sidebar.header(""" **Filters** """)
 
-
+    # it will recommend based on whats your inupt on genre and "sort by"
     def recommend_filter_based(temp_df, sort_by='Most Liked'):
         temp_df.sort_values(by='avg_rating', ascending=False, inplace=True, kind='quicksort')
         temp_df['price'] = temp_df['price'].astype(int)
@@ -932,7 +932,7 @@ if tab == "Search":
 
     sim_books = []
 
-
+    #it will recommend books based on content filtering
     def recommend_content_based(book_name):
         global cart
         book_idx = content_df[content_df['title'] == book_name].index[0]
@@ -1025,7 +1025,7 @@ if tab == "Search":
 
 
     list_book = []
-
+    # it will recommend books based on collaborative filtering
     def recommend_collab_based(book):
         book_index = np.where(collab_pivot.index == book)[0][0]
         distances, indices = knn_model.kneighbors(collab_pivot.iloc[book_index, :].values.reshape(1, -1), n_neighbors=11)
